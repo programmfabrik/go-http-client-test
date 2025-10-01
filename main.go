@@ -88,7 +88,8 @@ func main() {
 		go func() {
 			defer wg.Done()
 			for t := range urlChan {
-				processURL(client, t, *method)
+				processURL(client, t, "HEAD")
+				processURL(client, t, "GET")
 			}
 		}()
 	}
@@ -105,6 +106,7 @@ func main() {
 
 func processURL(client *http.Client, t task, method string) {
 	req, err := http.NewRequest(method, t.url, nil)
+	//req.Close = true
 	if err != nil {
 		fmt.Printf("%s,%s,%s,,0,0 Error: %v\n", t.bild, t.url, method, err)
 		return
