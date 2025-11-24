@@ -11,6 +11,7 @@ build-no-http2:
 run:
 	./csvget \
 		-parallel 20 \
+		-limit 0 \
 		-csv-file $(CSV_SRC_FILE) \
 		-result-file $(CSV_RESULT_FILE)
 

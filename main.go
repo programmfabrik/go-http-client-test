@@ -23,6 +23,7 @@ func main() {
 	resultFile := flag.String("result-file", "result.csv", "Path to the result CSV file")
 	method := flag.String("method", "HEAD", "HTTP method: GET or HEAD")
 	parallel := flag.Int("parallel", 1, "Number of parallel requests")
+	limit := flag.Int("limit", 0, "max number of csv rows, 0 for all rows")
 	flag.Parse()
 
 	if *csvFile == "" {
@@ -67,17 +68,18 @@ func main() {
 	client := http.DefaultClient
 
 	var tasks []task
+	n := 0
 	for {
 		row, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			log.Printf("Error reading row: %v", err)
+			log.Printf("#%d\tError reading row: %v", n, err)
 			continue
 		}
 		if len(row) != len(header) {
-			log.Printf("Error reading row: row length (%d) != expected header length (%d)", len(row), len(header))
+			log.Printf("#%d\tError reading row: row length (%d) != expected header length (%d)", n, len(row), len(header))
 			continue
 		}
 
@@ -94,6 +96,13 @@ func main() {
 			url := strings.TrimSpace(u)
 			if url != "" {
 				tasks = append(tasks, task{bild: bild, url: url})
+			}
+		}
+
+		n += 1
+		if *limit > 0 {
+			if n >= *limit {
+				break
 			}
 		}
 	}
